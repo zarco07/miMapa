@@ -9,15 +9,35 @@
 import UIKit
 import MapKit
 import CoreLocation
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+fileprivate func >= <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l >= r
+  default:
+    return !(lhs < rhs)
+  }
+}
+
 
 class ViewController: UIViewController, CLLocationManagerDelegate {
 
     @IBOutlet var mapa: MKMapView!
     
     
-    private let manejador = CLLocationManager()
+    fileprivate let manejador = CLLocationManager()
     var contador : Double = 0.0
-    private  var localizacionAnterior = CLLocation()
+    fileprivate  var localizacionAnterior = CLLocation()
     //var puntoAnt = CLLocationCoordinate2D()
     
     override func viewDidLoad() {
@@ -38,8 +58,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         // Dispose of any resources that can be recreated.
     }
     
-    func locationManager(manager: CLLocationManager, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
-        if status == .AuthorizedWhenInUse {
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        if status == .authorizedWhenInUse {
             manejador.startUpdatingLocation()
             mapa.showsUserLocation = true
             mapa.centerCoordinate = (manager.location?.coordinate)!
@@ -54,7 +74,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     }
 
     
-    func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
         var punto = CLLocationCoordinate2D()
         punto.latitude =  manager.location!.coordinate.latitude
@@ -73,8 +93,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             contador = 0.0001
         }
         else {
-            if manager.location?.distanceFromLocation(localizacionAnterior) >= 50 {
-                contador = contador + (manager.location?.distanceFromLocation(localizacionAnterior))!
+            if manager.location?.distance(from: localizacionAnterior) >= 50 {
+                contador = contador + (manager.location?.distance(from: localizacionAnterior))!
                 localizacionAnterior = manager.location!
                 
                 let pin = MKPointAnnotation()
@@ -92,13 +112,13 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     
     
     @IBAction func standar() {
-        mapa.mapType = MKMapType.Standard
+        mapa.mapType = MKMapType.standard
     }
     @IBAction func satelital() {
-        mapa.mapType = MKMapType.Satellite
+        mapa.mapType = MKMapType.satellite
     }
     @IBAction func hibrido() {
-        mapa.mapType = MKMapType.Hybrid
+        mapa.mapType = MKMapType.hybrid
     }
     
     @IBAction func zoomMenos() {
@@ -115,7 +135,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         mapa.setRegion(region, animated: true)
     }
     
-    @IBAction func zoomInOut(sender: UISlider) {
+    @IBAction func zoomInOut(_ sender: UISlider) {
         //let ubicacion = mapa.userLocation
         
         //let region = MKCoordinateRegionMakeWithDistance((ubicacion.location?.coordinate)!, Double(sender.value), Double(sender.value))
